@@ -1,0 +1,8 @@
+Range:
+   main: 50
+   whispering: 3
+   shout: 100
+   action: 70
+disableDeathMessage: true
+ConfigChance: 50
+GlobalChat: false
