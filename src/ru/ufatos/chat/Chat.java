@@ -13,7 +13,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.configuration.file.FileConfiguration;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 
 
@@ -26,8 +25,6 @@ public class Chat implements Listener {
 	private double RangeAction;
 	private boolean DeathMessage;
 	private double ConfigChance;
-	public int ololo;
-	public String ololo1;
 	
 	public Chat(FileConfiguration config) {
 		this.RangeMain = config.getDouble("Range.main", this.RangeMain);
@@ -45,9 +42,10 @@ public class Chat implements Listener {
 		String message = "%1$s: %2$s";		
 		String chatMessage = event.getMessage();	
 		boolean ranged = true; // я не знаю как это назвать, поэтому ranged (органичен ли чат)
+		double range = RangeMain; 
 		
 		if (chatMessage.startsWith("^g")) {			
-			if (PermissionsEx.getUser(player).has("rpchat.global")){
+			if (main.hasPermission(player,"rpchat.global")){
 				ranged = false;
 				message = "%1$s [GlobalChat]: %2$s";
 				chatMessage = ChatColor.GOLD+chatMessage.substring(2);
@@ -56,9 +54,8 @@ public class Chat implements Listener {
 				player.sendMessage("У вас нет прав писать в глобальный чат");
 				event.setCancelled(true);
 			}			
-		}
-			
-		double range = RangeMain; 
+		}			
+		
 		
 			if (chatMessage.startsWith("!")) {
 			range = RangeShout;
@@ -110,7 +107,7 @@ public class Chat implements Listener {
 		 }
 	 }
 		
-	 //способ органичения слышимости с одного распростаненого плага
+	 //способ органичения слышимости с одного распростаненого плага (ChatManager)
 	protected List<Player> getLocalRecipients(Player sender, String message, double range) {
 		Location playerLocation = sender.getLocation();
 		List<Player> recipients = new LinkedList<Player>();
