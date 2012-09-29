@@ -44,7 +44,7 @@ public class Chat implements Listener {
 	  	Player player = event.getPlayer();
 		String message = "%1$s: %2$s";		
 		String chatMessage = event.getMessage();	
-		boolean ranged = true; // СЏ РЅРµ Р·РЅР°СЋ РєР°Рє СЌС‚Рѕ РЅР°Р·РІР°С‚СЊ, РїРѕСЌС‚РѕРјСѓ ranged (РѕСЂРіР°РЅРёС‡РµРЅ Р»Рё С‡Р°С‚)
+		boolean ranged = true; // я не знаю как это назвать, поэтому ranged (органичен ли чат)
 		
 		if (chatMessage.startsWith("^g")) {			
 			if (PermissionsEx.getUser(player).has("rpchat.global")){
@@ -53,7 +53,7 @@ public class Chat implements Listener {
 				chatMessage = ChatColor.GOLD+chatMessage.substring(2);
 			}
 			else {
-				player.sendMessage("РЈ РІР°СЃ РЅРµС‚ РїСЂР°РІ РїРёСЃР°С‚СЊ РІ РіР»РѕР±Р°Р»СЊРЅС‹Р№ С‡Р°С‚");
+				player.sendMessage("У вас нет прав писать в глобальный чат");
 				event.setCancelled(true);
 			}			
 		}
@@ -62,14 +62,14 @@ public class Chat implements Listener {
 		
 			if (chatMessage.startsWith("!")) {
 			range = RangeShout;
-			message = "%1$s РєСЂРёС‡РёС‚: %2$s";
-			//chatMessage = ChatColor.BOLD+chatMessage.substring(1); Р¶РёСЂРЅС‹Р№ СЃРјРѕС‚СЂРёС‚СЃСЏ РїР»РѕС…Рѕ
+			message = "%1$s кричит: %2$s";
+			//chatMessage = ChatColor.BOLD+chatMessage.substring(1); жирный смотрится плохо
 			chatMessage = ChatColor.RED+chatMessage.substring(1);
 			}
 			
 			if (chatMessage.startsWith("@")) {
 			range = RangeWhispering;
-			message = "%1$s С€РµРїС‡РµС‚: %2$s";
+			message = "%1$s шепчет: %2$s";
 			chatMessage = ChatColor.ITALIC+chatMessage.substring(1);
 			chatMessage = ChatColor.GRAY+chatMessage;			
 			}
@@ -78,9 +78,9 @@ public class Chat implements Listener {
 			range = RangeAction;
 			chatMessage = ChatColor.LIGHT_PURPLE+chatMessage.substring(3);
 			double chance = Math.random()*100;
-			String luck=ChatColor.RED+"(РЅРµСѓРґР°С‡РЅРѕ)"+ChatColor.LIGHT_PURPLE;
+			String luck=ChatColor.RED+"(неудачно)"+ChatColor.LIGHT_PURPLE;
 			if (chance<ConfigChance){
-			luck = ChatColor.GREEN+"(СѓРґР°С‡РЅРѕ)"+ChatColor.LIGHT_PURPLE;
+			luck = ChatColor.GREEN+"(удачно)"+ChatColor.LIGHT_PURPLE;
 			}
 			message = ChatColor.LIGHT_PURPLE+"**%1$s %2$s "+luck+" **";
 			}
@@ -99,7 +99,7 @@ public class Chat implements Listener {
 		event.setFormat(message);
 		event.setMessage(chatMessage);	
 	    }
-	/*СѓР±РёСЂР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ Рѕ СЃРјРµСЂС‚Рё*/
+	/*убираем сообщение о смерти*/
 	 @EventHandler(priority = EventPriority.NORMAL)
 	 public void onEntityDeath(EntityDeathEvent event) {
 		 if (DeathMessage){
@@ -110,7 +110,7 @@ public class Chat implements Listener {
 		 }
 	 }
 		
-	 //СЃРїРѕСЃРѕР± РѕСЂРіР°РЅРёС‡РµРЅРёСЏ СЃР»С‹С€РёРјРѕСЃС‚Рё СЃ РѕРґРЅРѕРіРѕ СЂР°СЃРїСЂРѕСЃС‚Р°РЅРµРЅРѕРіРѕ РїР»Р°РіР°
+	 //способ органичения слышимости с одного распростаненого плага
 	protected List<Player> getLocalRecipients(Player sender, String message, double range) {
 		Location playerLocation = sender.getLocation();
 		List<Player> recipients = new LinkedList<Player>();
