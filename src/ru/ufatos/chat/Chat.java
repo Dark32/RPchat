@@ -2,6 +2,8 @@ package ru.ufatos.chat;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,7 +14,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import ru.tehkode.permissions.PermissionUser;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 
 
@@ -25,6 +31,13 @@ public class Chat implements Listener {
 	private double RangeAction;
 	private boolean DeathMessage;
 	private double ConfigChance;
+	protected static Pattern chatColorPattern = Pattern.compile("(?i)&([0-9A-F])");
+	protected static Pattern chatMagicPattern = Pattern.compile("(?i)&([K])");
+	protected static Pattern chatBoldPattern = Pattern.compile("(?i)&([L])");
+	protected static Pattern chatStrikethroughPattern = Pattern.compile("(?i)&([M])");
+	protected static Pattern chatUnderlinePattern = Pattern.compile("(?i)&([N])");
+	protected static Pattern chatItalicPattern = Pattern.compile("(?i)&([O])");
+	protected static Pattern chatResetPattern = Pattern.compile("(?i)&([R])");
 	
 	public Chat(FileConfiguration config) {
 		this.RangeMain = config.getDouble("Range.main", this.RangeMain);
@@ -34,6 +47,12 @@ public class Chat implements Listener {
 		this.DeathMessage = config.getBoolean("disableDeathMessage", this.DeathMessage);
 		this.ConfigChance = config.getDouble("ConfigChance", this.ConfigChance);
 
+	}
+	
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		updateDisplayName(event.getPlayer());
+		event.setJoinMessage (null);
 	}
 	
 	@EventHandler
@@ -123,4 +142,33 @@ public class Chat implements Listener {
 		}
 		return recipients;		
 	}
+	//ChatManager Permissions Prefix своровал код, чтобы не парится
+	protected static String translateColorCodes(String string) {
+		if (string == null) {
+			return "";
+		}
+
+		String newstring = string;
+		newstring = chatColorPattern.matcher(newstring).replaceAll("\u00A7$1");
+		newstring = chatMagicPattern.matcher(newstring).replaceAll("\u00A7$1");
+		newstring = chatBoldPattern.matcher(newstring).replaceAll("\u00A7$1");
+		newstring = chatStrikethroughPattern.matcher(newstring).replaceAll("\u00A7$1");
+		newstring = chatUnderlinePattern.matcher(newstring).replaceAll("\u00A7$1");
+		newstring = chatItalicPattern.matcher(newstring).replaceAll("\u00A7$1");
+		newstring = chatResetPattern.matcher(newstring).replaceAll("\u00A7$1");
+		return newstring;
+	}
+	static void updateDisplayNames() {
+		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+			updateDisplayName(player);
+		}
+	}
+
+	static void updateDisplayName(Player player) {
+		PermissionUser user = PermissionsEx.getPermissionManager().getUser(player);
+		if (user == null) {
+			return;
+		}
+		player.setDisplayName(Chat.translateColorCodes(user.getPrefix()+player.getName()));
+		}
 }

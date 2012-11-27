@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -62,4 +64,13 @@ public class main extends JavaPlugin {
 		       return player.isOp();
 		   }
 		}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+		if(cmd.getName().equalsIgnoreCase("updnames")){
+			Chat.updateDisplayNames();
+			sender.sendMessage(sender.getName());
+			return true;
+		} 
+		return false; 
+	}
 }
