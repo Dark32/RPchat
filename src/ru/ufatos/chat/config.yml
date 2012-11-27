@@ -5,3 +5,4 @@ Range:
    action: 70
 disableDeathMessage: true
 ConfigChance: 50
+GlobalChat: false
