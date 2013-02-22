@@ -5,33 +5,18 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import ru.tehkode.permissions.bukkit.PermissionsEx;
  
 public class main extends JavaPlugin {
 	
 	public static final Logger _log  = Logger.getLogger("Minecraft");
-	static boolean usePEX = false;
-	static boolean usePB = false;
  
-	public void onEnable(){		
-		//Спасибо DmitriyMX за функцию проверки пермишен плагина
-		PluginManager pm = Bukkit.getPluginManager();
-		if(pm.getPlugin("PermissionsEx") != null){
-		   usePEX = true;
-		}else if(pm.getPlugin("PermissionsBukkit") != null){
-		   usePB = true;
-		}else{
-		   getLogger().warning("Permissions plugins not found!");
-		}
-		//И опять спасибо DmitriyMX за распаковку конфига. Туторы на его сайте DmitriyMX.ru 
+	public void onEnable(){
+		//спасибо DmitriyMX за распаковку конфига. Туторы на его сайте DmitriyMX.ru 
 		File fileConf = new File(getDataFolder(), "config.yml");
 		if(!fileConf.exists()){
 		    InputStream resourceAsStream = main.class.getResourceAsStream("/ru/ufatos/chat/config.yml");
@@ -55,22 +40,21 @@ public class main extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new Chat(config), this);
 	}
 	
-	public static boolean hasPermission(Player player, String permission){
-		   if(usePEX){
-		       return PermissionsEx.getUser(player).has(permission);
-		   }else if(usePB){
-		       return player.hasPermission(permission);
-		   }else{
-		       return player.isOp();
-		   }
-		}
-	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-		if(cmd.getName().equalsIgnoreCase("updnames")){
+		if(cmd.getName().equalsIgnoreCase("updnames") & sender.isOp()){
 			Chat.updateDisplayNames();
-			sender.sendMessage(sender.getName());
+			//sender.sendMessage(sender.getName());
 			return true;
-		} 
+		}else if(cmd.getName().equalsIgnoreCase("rpchat")){
+			sender.sendMessage(ChatColor.GOLD+"------RPchat-by-ufatos---------------------");
+			sender.sendMessage("!      крик");
+			sender.sendMessage("@     шепот");
+			sender.sendMessage("**    действие");
+			sender.sendMessage("***   действие с шансом");
+			sender.sendMessage("#     глобальный чат");
+			sender.sendMessage(ChatColor.GOLD+"-------------------------------------------");
+			return true;
+		}
 		return false; 
 	}
 }

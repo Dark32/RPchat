@@ -2,6 +2,7 @@ package ru.ufatos.chat;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
@@ -38,6 +39,7 @@ public class Chat implements Listener {
 	protected static Pattern chatUnderlinePattern = Pattern.compile("(?i)&([N])");
 	protected static Pattern chatItalicPattern = Pattern.compile("(?i)&([O])");
 	protected static Pattern chatResetPattern = Pattern.compile("(?i)&([R])");
+	protected static Pattern spaceF = Pattern.compile("^\\s+");
 	
 	public Chat(FileConfiguration config) {
 		this.RangeMain = config.getDouble("Range.main", this.RangeMain);
@@ -63,11 +65,11 @@ public class Chat implements Listener {
 		boolean ranged = true; // я не знаю как это назвать, поэтому ranged (органичен ли чат)
 		double range = RangeMain; 
 		
-		if (chatMessage.startsWith("^g")) {			
-			if (main.hasPermission(player,"rpchat.global")){
+		if (chatMessage.startsWith("#")) {			
+			if (player.hasPermission("rpchat.global")){
 				ranged = false;
 				message = "%1$s [GlobalChat]: %2$s";
-				chatMessage = ChatColor.GOLD+chatMessage.substring(2);
+				chatMessage = ChatColor.GOLD+delSpace(chatMessage.substring(1));
 			}
 			else {
 				player.sendMessage("У вас нет прав писать в глобальный чат");
@@ -80,19 +82,19 @@ public class Chat implements Listener {
 			range = RangeShout;
 			message = "%1$s кричит: %2$s";
 			//chatMessage = ChatColor.BOLD+chatMessage.substring(1); жирный смотрится плохо
-			chatMessage = ChatColor.RED+chatMessage.substring(1);
+			chatMessage = ChatColor.RED+delSpace(chatMessage.substring(1));
 			}
 			
 			if (chatMessage.startsWith("@")) {
 			range = RangeWhispering;
 			message = "%1$s шепчет: %2$s";
-			chatMessage = ChatColor.ITALIC+chatMessage.substring(1);
+			chatMessage = ChatColor.ITALIC+delSpace(chatMessage.substring(1));
 			chatMessage = ChatColor.GRAY+chatMessage;			
 			}
 			
 			if (chatMessage.startsWith("***")) {
 			range = RangeAction;
-			chatMessage = ChatColor.LIGHT_PURPLE+chatMessage.substring(3);
+			chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
 			double chance = Math.random()*100;
 			String luck=ChatColor.RED+"(неудачно)"+ChatColor.LIGHT_PURPLE;
 			if (chance<ConfigChance){
@@ -104,7 +106,7 @@ public class Chat implements Listener {
 			if (chatMessage.startsWith("**")) {
 			range = RangeAction;
 			message = ChatColor.LIGHT_PURPLE+"**%1$s %2$s**";
-			chatMessage = chatMessage.substring(2);	
+			chatMessage = delSpace(chatMessage.substring(2));	
 			}
 			
 		if (ranged)
@@ -126,7 +128,7 @@ public class Chat implements Listener {
 		 }
 	 }
 		
-	 //способ органичения слышимости с одного распростаненого плага (ChatManager)
+	 //Тут немного взял у ChatManager
 	protected List<Player> getLocalRecipients(Player sender, String message, double range) {
 		Location playerLocation = sender.getLocation();
 		List<Player> recipients = new LinkedList<Player>();
@@ -142,7 +144,7 @@ public class Chat implements Listener {
 		}
 		return recipients;		
 	}
-	//ChatManager Permissions Prefix своровал код, чтобы не парится
+	
 	protected static String translateColorCodes(String string) {
 		if (string == null) {
 			return "";
@@ -162,6 +164,11 @@ public class Chat implements Listener {
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 			updateDisplayName(player);
 		}
+	}
+	public String delSpace(String chatMessage) {
+		Matcher space = spaceF.matcher(chatMessage);
+		chatMessage = space.replaceFirst("");
+		return chatMessage;
 	}
 
 	static void updateDisplayName(Player player) {
