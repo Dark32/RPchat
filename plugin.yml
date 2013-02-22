@@ -1,0 +1,12 @@
+name: RPchat
+author: ufatos
+website: ufatos.ru
+main: ru.ufatos.chat.main
+version: 0.6
+commands:
+   updnames:
+      description: 'Обновить никнеймы'
+      usage: /<command>
+   rpchat:
+      usage: /<command>
+      description: 'Помощь'
