@@ -65,7 +65,7 @@ public class Chat implements Listener {
 		boolean ranged = true; // я не знаю как это назвать, поэтому ranged (органичен ли чат)
 		double range = RangeMain; 
 		
-		if (chatMessage.startsWith("#")) {			
+		if (chatMessage.startsWith("#") && chatMessage.length() > 1 ) {			
 			if (player.hasPermission("rpchat.global")){
 				ranged = false;
 				message = "%1$s [GlobalChat]: %2$s";
@@ -78,32 +78,36 @@ public class Chat implements Listener {
 		}			
 		
 		
-			if (chatMessage.startsWith("!")) {
-			range = RangeShout;
-			message = "%1$s кричит: %2$s";
-			//chatMessage = ChatColor.BOLD+chatMessage.substring(1); жирный смотрится плохо
-			chatMessage = ChatColor.RED+delSpace(chatMessage.substring(1));
+			if (chatMessage.startsWith("!") && chatMessage.length() > 1 ) {
+				range = RangeShout;
+				message = "%1$s кричит: %2$s";
+				//chatMessage = ChatColor.BOLD+chatMessage.substring(1); жирный смотрится плохо
+				chatMessage = ChatColor.RED+delSpace(chatMessage.substring(1));
 			}
 			
-			if (chatMessage.startsWith("@")) {
-			range = RangeWhispering;
-			message = "%1$s шепчет: %2$s";
-			chatMessage = ChatColor.ITALIC+delSpace(chatMessage.substring(1));
-			chatMessage = ChatColor.GRAY+chatMessage;			
+			if (chatMessage.startsWith("@") && chatMessage.length() > 1 ) {
+				range = RangeWhispering;
+				message = "%1$s шепчет: %2$s";
+				chatMessage = ChatColor.ITALIC+delSpace(chatMessage.substring(1));
+				chatMessage = ChatColor.GRAY+chatMessage;			
 			}
 			
-			if (chatMessage.startsWith("***")) {
-			range = RangeAction;
-			chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
-			double chance = Math.random()*100;
-			String luck=ChatColor.RED+"(неудачно)"+ChatColor.LIGHT_PURPLE;
-			if (chance<ConfigChance){
-			luck = ChatColor.GREEN+"(удачно)"+ChatColor.LIGHT_PURPLE;
-			}
-			message = ChatColor.LIGHT_PURPLE+"**%1$s %2$s "+luck+" **";
+			if (chatMessage.startsWith("***") {
+				if (chatMessage.length() > 3) {
+					range = RangeAction;
+					chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
+					double chance = Math.random()*100;
+					//Не уверен в работоспособности тернарного оператора в формирование строки
+					String luck=ChatColor.RED+((chance<ConfigChance)?"(не удачно)":"(удачно)")+ChatColor.LIGHT_PURPLE;
+					message = ChatColor.LIGHT_PURPLE+"**%1$s %2$s "+luck+" **";
+				}else{
+					double chance = Math.random()*100;
+					chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
+					message = ChatColor.LIGHT_PURPLE+"**%1$s выбрасывает "+Double.toString(chance)+" **";	
+				}
 			}
 			
-			if (chatMessage.startsWith("**")) {
+			if (chatMessage.startsWith("**") && chatMessage.length() > 2) {
 			range = RangeAction;
 			message = ChatColor.LIGHT_PURPLE+"**%1$s %2$s**";
 			chatMessage = delSpace(chatMessage.substring(2));	
