@@ -134,13 +134,13 @@ public class Chat implements Listener {
 		List<Player> recipients = new LinkedList<Player>();
 		double squaredDistance = Math.pow(range, 2);
 		for (Player recipient : Bukkit.getServer().getOnlinePlayers()) {
-			if (!recipient.getWorld().equals(sender.getWorld())) {
-				continue;
-			}
-			if (playerLocation.distanceSquared(recipient.getLocation()) > squaredDistance) {
-				continue;
-			}
-			recipients.add(recipient);
+		  if (recipient.getWorld().equals(sender.getWorld())  && playerLocation.distanceSquared(recipient.getLocation()) < squaredDistance) {
+           	     recipients.add(recipient);
+          	  } else if (main.hasPermission(recipient, "rpchat.spy")) {
+            	     recipients.add(recipient);
+          	  } else {
+           	    continue;
+          	  }
 		}
 		return recipients;		
 	}
