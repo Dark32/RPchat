@@ -92,7 +92,7 @@ public class Chat implements Listener {
 				chatMessage = ChatColor.GRAY+chatMessage;			
 			}
 			
-			if (chatMessage.startsWith("***") {
+			if (chatMessage.startsWith("***")) {
 				if (chatMessage.length() > 3) {
 					range = RangeAction;
 					chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
@@ -140,7 +140,7 @@ public class Chat implements Listener {
 		for (Player recipient : Bukkit.getServer().getOnlinePlayers()) {
 		  if (recipient.getWorld().equals(sender.getWorld())  && playerLocation.distanceSquared(recipient.getLocation()) < squaredDistance) {
            	     recipients.add(recipient);
-          	  } else if (main.hasPermission(recipient, "rpchat.spy")) {
+          	  } else if (recipient.hasPermission("rpchat.spy")) {
             	     recipients.add(recipient);
           	  } else {
            	    continue;
