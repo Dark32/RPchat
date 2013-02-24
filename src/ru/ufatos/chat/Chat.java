@@ -32,6 +32,12 @@ public class Chat implements Listener {
 	private double RangeAction;
 	private boolean DeathMessage;
 	private double ConfigChance;
+  private Random rand = new Random();
+  private String luck = ChatColor.GREEN + "(удачно)" + ChatColor.LIGHT_PURPLE;
+  private String unluck = ChatColor.RED + "(не удачно)" + ChatColor.LIGHT_PURPLE;
+  private int randrollde = 6;
+  private int defchanse = 50; // шанс
+  private int minroll = 5;
 	protected static Pattern chatColorPattern = Pattern.compile("(?i)&([0-9A-F])");
 	protected static Pattern chatMagicPattern = Pattern.compile("(?i)&([K])");
 	protected static Pattern chatBoldPattern = Pattern.compile("(?i)&([L])");
@@ -40,7 +46,8 @@ public class Chat implements Listener {
 	protected static Pattern chatItalicPattern = Pattern.compile("(?i)&([O])");
 	protected static Pattern chatResetPattern = Pattern.compile("(?i)&([R])");
 	protected static Pattern spaceF = Pattern.compile("^\\s+");
-	protected static Pattern nick = Pattern.compile("[%2]([\\d\\w_]+)\\s(.+)");// Извлекаем ник
+	protected static Pattern nick = Pattern.compile("[%2](\\D[\\d\\w_]+)\\s(.+)");// Извлекаем ник
+	protected static Pattern _number = Pattern.compile("^\\*{3}(\\d+)$");// число?
 	
 	public Chat(FileConfiguration config) {
 		this.RangeMain = config.getDouble("Range.main", this.RangeMain);
@@ -93,7 +100,7 @@ public class Chat implements Listener {
 				chatMessage = ChatColor.GRAY+chatMessage;			
 			}
 			
-			if (chatMessage.startsWith("***")) {
+		/*	if (chatMessage.startsWith("***") && chatMessage.length() > 3) {
 				if (chatMessage.length() > 3) {
 					range = RangeAction;
 					chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
@@ -106,7 +113,25 @@ public class Chat implements Listener {
 					chatMessage = ChatColor.LIGHT_PURPLE+delSpace(chatMessage.substring(3));
 					message = ChatColor.LIGHT_PURPLE+"**%1$s выбрасывает "+Double.toString(chance)+" **";	
 				}
-			}
+			}*/
+			
+			// Действие с вероятностью
+        if (chatMessage.startsWith("***") && chatMessage.length() > 3) {//если сообщение начинается с *** и длинее 3
+               range = RangeAction;// дальность локального чата
+            Matcher m = _number.matcher(chatMessage);//фильтруем сообщение
+            int i;//иницилизируем локальную переменную
+            if (m.find()) {//если фильтр прошёл
+                i = Integer.parseInt(m.group(1));//смотрим сколько подано в рандрол
+                i = i > minroll ? i : randrolldef;//если слишком мало, то даём значение по умолчанию
+                int j = rand.nextInt(i) + 1;//генерируем рандомролл
+                message = ChatColor.LIGHT_PURPLE + "**" + player.getDisplayName() + ChatColor.LIGHT_PURPLE + " выбрасывает " + j + " из " + i + "**";//выводибм бросок кубика
+            } else {//если фильтр не прошёл, значит действие
+                chatMessage = ChatColor.LIGHT_PURPLE + (chatMessage.substring(3));//всё что дальше 3 символа - действие
+                int chance = rand.nextInt(100);//генерируем шанс
+                message = ChatColor.LIGHT_PURPLE + "** " + player.getDisplayName() + " " + chatMessage + ((chance > defchanse) ? luck : unluck) + " **";//выводим действие
+            }
+
+        }
 			
 			if (chatMessage.startsWith("**") && chatMessage.length() > 2) {
 			range = RangeAction;
@@ -115,15 +140,16 @@ public class Chat implements Listener {
 			}
 			
 		if ((chatMessage.startsWith("%") || chatMessage.startsWith("2")) && chatMessage.length() > 1) {//если сообщение начинается с % или 2 и длинее 1 
-			range = -1;// флаг особого чата
+		
 			Matcher m = nick.matcher(chatMessage);//ищим ник
 			if (m.find()) {//если нашли
+				range = -1;// флаг особого чата
 			 	if (Bukkit.getServer().getPlayer(m.group(1)) != null) {//то проверяем, есть ли игрок в сети
 					Player recipient = Bukkit.getServer().getPlayer(m.group(1));//если есть, то присваеваем его переменной
 					if (!recipient.equals(player))//проверяем не пишет ли игрок сам себе (да, такое бывает)
 						recipient.sendMessage(ChatColor.GRAY + "pm:" + player.getDisplayName() + ": "
 						        + ChatColor.DARK_PURPLE + m.group(2));//оформляем текст сообщения и отправляем его цели, еси цель не отправитель
-					player.sendMessage(ChatColor.GRAY + "pm:" + player.getDisplayName() + "->"
+						player.sendMessage(ChatColor.GRAY + "pm:" + player.getDisplayName() + "->"
 					        + recipient.getDisplayName() + ": " + ChatColor.DARK_PURPLE + m.group(2));//дублируем отправителю сообщение, даже если цель сам он
 					//** этого кода нет в данной версии
 				  //	if (!main.hasPermission(player, "rpchat.nospy"))//проверяем, есть права на защиту от прослушки
@@ -136,10 +162,11 @@ public class Chat implements Listener {
 				} else {
 					player.sendMessage("Игрока " + m.group(1) + " нет в сети");//если игрока нет в сети 
 				}
-			} else {
+				 event.setCancelled(true);
+			} /*else {
 				player.sendMessage(ChatColor.YELLOW + "Нужно писать так %<имя> сообщение"); // если ошибка в команде
-			}
-			event.setCancelled(true);
+			}*/
+			
 		}
 		
 		if (ranged && range>0)
