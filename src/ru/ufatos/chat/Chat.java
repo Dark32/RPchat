@@ -40,6 +40,7 @@ public class Chat implements Listener {
 	protected static Pattern chatItalicPattern = Pattern.compile("(?i)&([O])");
 	protected static Pattern chatResetPattern = Pattern.compile("(?i)&([R])");
 	protected static Pattern spaceF = Pattern.compile("^\\s+");
+	protected static Pattern nick = Pattern.compile("[%2]([\\d\\w_]+)\\s(.+)");// Извлекаем ник
 	
 	public Chat(FileConfiguration config) {
 		this.RangeMain = config.getDouble("Range.main", this.RangeMain);
@@ -113,7 +114,35 @@ public class Chat implements Listener {
 			chatMessage = delSpace(chatMessage.substring(2));	
 			}
 			
-		if (ranged)
+		if ((chatMessage.startsWith("%") || chatMessage.startsWith("2")) && chatMessage.length() > 1) {//если сообщение начинается с % или 2 и длинее 1 
+			range = -1;// флаг особого чата
+			Matcher m = nick.matcher(chatMessage);//ищим ник
+			if (m.find()) {//если нашли
+			 	if (Bukkit.getServer().getPlayer(m.group(1)) != null) {//то проверяем, есть ли игрок в сети
+					Player recipient = Bukkit.getServer().getPlayer(m.group(1));//если есть, то присваеваем его переменной
+					if (!recipient.equals(player))//проверяем не пишет ли игрок сам себе (да, такое бывает)
+						recipient.sendMessage(ChatColor.GRAY + "pm:" + player.getDisplayName() + ": "
+						        + ChatColor.DARK_PURPLE + m.group(2));//оформляем текст сообщения и отправляем его цели, еси цель не отправитель
+					player.sendMessage(ChatColor.GRAY + "pm:" + player.getDisplayName() + "->"
+					        + recipient.getDisplayName() + ": " + ChatColor.DARK_PURPLE + m.group(2));//дублируем отправителю сообщение, даже если цель сам он
+					//** этого кода нет в данной версии
+				  //	if (!main.hasPermission(player, "rpchat.nospy"))//проверяем, есть права на защиту от прослушки
+			  	//		getPMRecipientsSpy(player, recipient, m.group(2));// если нет, формируем слушателей
+		    	//		**//
+         // event.setCancelled(true);// глушим вывод сообщения, забыл, глушим ниже. Убрать
+					Bukkit.getConsoleSender().sendMessage(
+					        ChatColor.GRAY + "spy:" + player.getDisplayName() + "->" + recipient.getDisplayName()
+					                + ": " + m.group(2));//выводим ЛС в консоль
+				} else {
+					player.sendMessage("Игрока " + m.group(1) + " нет в сети");//если игрока нет в сети 
+				}
+			} else {
+				player.sendMessage(ChatColor.YELLOW + "Нужно писать так %<имя> сообщение"); // если ошибка в команде
+			}
+			event.setCancelled(true);
+		}
+		
+		if (ranged && range>0)
 		{	
 			event.getRecipients().clear();
 			event.getRecipients().addAll(this.getLocalRecipients(player, message, range));
